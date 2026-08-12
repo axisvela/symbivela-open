@@ -61,6 +61,11 @@ Public, Apache-2.0 surface for integrating with SYMBIVELA.
 - `contracts/harmovela-event-envelope-v1.schema.json` — runtime event envelope contract.
 - `contracts/intervention-request-v1.schema.json` — intervention request contract.
 
+### SDKs
+
+- `sdk/go` — typed Go client with a test; `sdk/typescript` — TypeScript client.
+- `sdk/README.md` — usage for both.
+
 ### Examples
 
 - `examples/governance-kernel/` — trusted-context API usage.
