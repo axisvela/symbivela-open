@@ -11,6 +11,18 @@ info:
 servers:
   - url: https://api.symbivela.axisrobo.io
 paths:
+  /health:
+    get:
+      operationId: liveness
+      responses: {'200': {description: Process is alive}}
+  /ready:
+    get:
+      operationId: readiness
+      responses: {'200': {description: "Dependencies ready: {dependency: ok}"}, '503': {description: "Not ready: {dependency: down}"}}
+  /metrics:
+    get:
+      operationId: requestMetrics
+      responses: {'200': {description: Text request counters}}
   /v1/workspaces:
     post:
       operationId: createWorkspace
