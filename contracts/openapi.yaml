@@ -278,6 +278,14 @@ paths:
       operationId: diffPlanRevisions
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}, {name: from, in: query, required: true, schema: {type: string}}, {name: to, in: query, required: true, schema: {type: string}}]
       responses: {'200': {description: Top-level payload changes between two revisions}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/plans/{goal_id}/impact:
+    get:
+      operationId: planImpact
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: "Impact summary: capability/delegation changes, irreversible actions, risk level"}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
   /v1/handoffs:
     post:
       operationId: createHandoff
