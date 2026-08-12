@@ -266,13 +266,13 @@ paths:
     get:
       operationId: composeEvidence
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}]
-      responses: {'200': {description: Responsibility chain for the goal}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+      responses: {'200': {description: "Responsibility chain: goal, plan, decisions, interventions, artifacts, outcome"}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/audit/{goal_id}:
     get:
       operationId: composeAuditBundle
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}]
       responses:
-        '200': {description: "Bounded audit bundle: goal, plan, approvals, decisions, interventions, handoffs, outcome, acceptances"}
+        '200': {description: "Bounded audit bundle: goal, plan, approvals, decisions, interventions, handoffs, artifacts, outcome, acceptances"}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
   /v1/my-work:
