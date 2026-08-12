@@ -29,6 +29,11 @@ paths:
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateWorkspace'}}}}
       responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '409': {$ref: '#/components/responses/AlreadyExists'}}
+  /v1/workspaces:
+    get:
+      operationId: listWorkspaces
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}]
+      responses: {'200': {description: Memberships for the actor}, '400': {$ref: '#/components/responses/InvalidRequest'}}
   /v1/workspaces/{id}/archive:
     post:
       operationId: archiveWorkspace
