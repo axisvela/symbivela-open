@@ -191,6 +191,15 @@ paths:
       operationId: getIntervention
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Intervention record}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/interventions/{id}/assess:
+    post:
+      operationId: assessIntervention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: "Safe-point assessment recorded: safe point, in-progress effect, estimated stop time"}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/InvalidTransition'}
   /v1/interventions/{id}/authorize:
     post:
       operationId: authorizeIntervention
