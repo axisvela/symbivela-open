@@ -61,6 +61,27 @@ paths:
       operationId: getHumanDecision
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Immutable decision record}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/artifacts:
+    post:
+      operationId: registerArtifact
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RegisterArtifact'}}}}
+      responses: {'201': {description: Registered}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+    get:
+      operationId: listArtifacts
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: goal_id, in: query, required: false, schema: {type: string}}, {name: status, in: query, required: false, schema: {type: string, enum: [in_review, approved, rejected]}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Artifacts}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/artifacts/{id}:
+    get:
+      operationId: getArtifact
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Artifact}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/artifacts/{id}/review:
+    post:
+      operationId: reviewArtifact
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ArtifactReview'}}}}
+      responses: {'200': {description: Review recorded}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {description: Artifact not in review}}
   /v1/exception-cases:
     post:
       operationId: openExceptionCase
@@ -281,6 +302,22 @@ components:
         rationale: {type: string}
         context_digest: {type: string}
         causation_id: {type: string}
+    RegisterArtifact:
+      type: object
+      required: [workspace_id, artifact_id, goal_id, kind, name, ref]
+      properties:
+        workspace_id: {type: string}
+        artifact_id: {type: string}
+        goal_id: {type: string}
+        outcome_id: {type: string}
+        kind: {type: string, enum: [report, contract, code, record, dataset, other]}
+        name: {type: string}
+        ref: {type: string, description: Source reference or digest}
+    ArtifactReview:
+      type: object
+      required: [status]
+      properties:
+        status: {type: string, enum: [approved, rejected]}
     CreateThread:
       type: object
       required: [workspace_id, thread_id, subject_type, subject_ref]
