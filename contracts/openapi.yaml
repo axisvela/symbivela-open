@@ -204,6 +204,18 @@ paths:
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
         '409': {$ref: '#/components/responses/InvalidTransition'}
+  /v1/interventions/{id}/break-glass:
+    post:
+      operationId: breakGlassIntervention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/BreakGlass'}}}}
+      responses: {'200': {description: "Authorized outside normal policy with evidence; review is mandatory"}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+  /v1/interventions/{id}/review:
+    post:
+      operationId: reviewBreakGlass
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/BreakGlassReview'}}}}
+      responses: {'200': {description: "Review recorded; disapproval reverts the intervention"}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
   /v1/interventions/{id}/authorize:
     post:
       operationId: authorizeIntervention
@@ -433,6 +445,16 @@ components:
         workspace_id: {type: string}
         target_ref: {type: string}
         verb: {type: string, enum: [pause, resume, cancel, redirect, constrain, takeover, emergency-stop, recover]}
+    BreakGlass:
+      type: object
+      required: [evidence]
+      properties:
+        evidence: {type: string, description: Strong justification recorded for post-hoc review}
+    BreakGlassReview:
+      type: object
+      required: [approve]
+      properties:
+        approve: {type: boolean, description: "true accepts the break-glass; false reverts the intervention"}
     HarmovelaEvent:
       type: object
       required: [event_id, workspace_id, type, subject_ref, source_system, source_ref]
