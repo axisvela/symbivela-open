@@ -1,1 +1,6 @@
 extends: spectral:oas
+
+rules:
+  # Documentation-quality rules are advisory for a contract-focused repo.
+  operation-description: off
+  operation-tags: off

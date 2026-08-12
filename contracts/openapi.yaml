@@ -38,17 +38,17 @@ paths:
   /v1/attention/{id}/claim:
     post:
       operationId: claimAttention
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Claimed}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
   /v1/attention/{id}/resolve:
     post:
       operationId: resolveAttention
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Resolved}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
   /v1/attention/{id}/escalate:
     post:
       operationId: escalateAttention
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Escalated}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
   /v1/decisions:
     post:
@@ -59,7 +59,7 @@ paths:
   /v1/decisions/{id}:
     get:
       operationId: getHumanDecision
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Immutable decision record}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/goals:
     post:
@@ -74,7 +74,7 @@ paths:
   /v1/goals/{id}:
     get:
       operationId: getGoal
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Latest goal revision}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/events:
     post:
@@ -100,7 +100,7 @@ paths:
   /v1/approvals/{id}:
     get:
       operationId: getApproval
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Approval projection}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/interventions:
     post:
@@ -111,17 +111,17 @@ paths:
   /v1/interventions/{id}:
     get:
       operationId: getIntervention
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Intervention record}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/interventions/{id}/authorize:
     post:
       operationId: authorizeIntervention
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Authorized or denied by AEGIVELA}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}, '503': {description: Authorization authority unavailable}}
   /v1/interventions/{id}/execute:
     post:
       operationId: executeIntervention
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Executed by runtime}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
   /v1/outcomes:
     post:
@@ -136,25 +136,25 @@ paths:
   /v1/outcomes/{id}:
     get:
       operationId: getOutcome
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Outcome review}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/outcomes/{id}/acceptance:
     post:
       operationId: acceptOutcome
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/OutcomeAcceptance'}}}}
       responses: {'200': {description: Accepted}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/evidence/{goal_id}:
     get:
       operationId: composeEvidence
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$name: goal_id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Responsibility chain for the goal}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/audit/{goal_id}:
     get:
       operationId: composeAuditBundle
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$name: goal_id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}]
       responses:
-        '200': {description: Bounded audit bundle: goal, plan, approvals, decisions, interventions, handoffs, outcome, acceptances}
+        '200': {description: "Bounded audit bundle: goal, plan, approvals, decisions, interventions, handoffs, outcome, acceptances"}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
   /v1/my-work:
@@ -162,12 +162,12 @@ paths:
       operationId: myWorkSummary
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}]
       responses:
-        '200': {description: Pending attention, approvals, and handoffs across the actor's workspaces}
+        '200': {description: "Pending attention, approvals, and handoffs across the actor's workspaces"}
         '400': {$ref: '#/components/responses/InvalidRequest'}
   /v1/goals/{id}/amend:
     post:
       operationId: amendGoal
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AmendGoal'}}}}
       responses: {'200': {description: New revision}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/plans:
@@ -179,7 +179,7 @@ paths:
   /v1/plans/{goal_id}:
     get:
       operationId: getPlanProjection
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$name: goal_id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Latest plan projection}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/handoffs:
     post:
@@ -190,27 +190,28 @@ paths:
   /v1/handoffs/{id}:
     get:
       operationId: getHandoff
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Handoff record}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/handoffs/{id}/accept:
     post:
       operationId: acceptHandoff
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Accepted}, '400': {$ref: '#/components/responses/InvalidRequest'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
   /v1/handoffs/{id}/reject:
     post:
       operationId: rejectHandoff
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Rejected}, '400': {$ref: '#/components/responses/InvalidRequest'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
   /v1/handoffs/{id}/escalate:
     post:
       operationId: escalateHandoff
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$name: id, in: path, required: true, schema: {type: string}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Escalated}, '400': {$ref: '#/components/responses/InvalidRequest'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
 components:
   parameters:
     Tenant: {name: X-SYMBIVELA-Tenant, in: header, required: true, schema: {type: string, minLength: 1}}
     Actor: {name: X-SYMBIVELA-Actor, in: header, required: true, schema: {type: string, minLength: 1}}
+    IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1}, description: Unique per tenant for a mutating command. Replay with the same key is rejected.}
   schemas:
     CreateWorkspace:
       type: object
