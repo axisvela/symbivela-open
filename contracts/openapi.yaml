@@ -179,9 +179,9 @@ paths:
   /v1/timeline/{goal_id}:
     get:
       operationId: goalTimeline
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}, {name: cursor, in: query, required: false, schema: {type: string}, description: "Opaque continuation token from next_cursor"}]
       responses:
-        '200': {description: "Merged activity feed: runtime events, human decisions, interventions, plan revisions, outcome reviews"}
+        '200': {description: "Merged activity feed: runtime events, human decisions, interventions, plan revisions, outcome reviews; next_cursor when more pages exist"}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
   /v1/approvals:
