@@ -29,7 +29,6 @@ paths:
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateWorkspace'}}}}
       responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '409': {$ref: '#/components/responses/AlreadyExists'}}
-  /v1/workspaces:
     get:
       operationId: listWorkspaces
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}]
@@ -304,6 +303,24 @@ paths:
       responses:
         '200': {description: "Pending attention, approvals, and handoffs across the actor's workspaces"}
         '400': {$ref: '#/components/responses/InvalidRequest'}
+  /v1/spatial/views:
+    post:
+      operationId: recordSpatialView
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {name: X-SYMBIVELA-Service, in: header, required: true, schema: {type: string, const: kinetovela}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SpatialView'}}}}
+      responses: {'201': {description: Recorded}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {description: Service token missing or invalid}, '409': {description: Spatial projection source already seen}}
+    get:
+      operationId: listSpatialViews
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: query, required: false, schema: {type: string}}, {name: workspace_id, in: query, required: false, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses:
+        '200': {description: "Latest robot/twin spatial snapshots (by goal or workspace)"}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/spatial/views/{entity_ref}:
+    get:
+      operationId: getSpatialView
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: entity_ref, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Latest spatial snapshot for the entity}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/goals/{id}/amend:
     post:
       operationId: amendGoal
@@ -538,6 +555,21 @@ components:
         source_system: {type: string, enum: [orchadyn]}
         source_ref: {type: string}
         payload: {type: string, description: ORCHADYN plan JSON projection}
+    SpatialView:
+      type: object
+      required: [workspace_id, entity_ref, entity_kind, status, location, source_system, source_ref]
+      properties:
+        workspace_id: {type: string}
+        entity_ref: {type: string, description: Canonical reference of the physical or twin entity}
+        entity_kind: {type: string, enum: [robot, twin, fleet, device]}
+        status: {type: string, description: "Operational state, e.g. idle, moving, charging, error"}
+        location: {type: string, description: JSON position/zone projection}
+        pose: {type: string, description: JSON orientation projection}
+        occupied_region: {type: string, description: JSON bounded region currently occupied}
+        goal_id: {type: string}
+        payload: {type: string}
+        source_system: {type: string, enum: [kinetovela]}
+        source_ref: {type: string}
     AmendGoal:
       type: object
       required: [title, owner_id, status]

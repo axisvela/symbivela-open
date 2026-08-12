@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisrobo.io/contracts/kinetovela-spatial-view/v1",
+  "title": "KINETOVELA Spatial View v1",
+  "description": "Read-only robot/twin spatial projection SYMBIVELA accepts from KINETOVELA. SYMBIVELA stores the snapshot and references; it never edits or owns the physical world state.",
+  "type": "object",
+  "required": ["workspace_id", "entity_ref", "entity_kind", "status", "location", "source_system", "source_ref"],
+  "properties": {
+    "workspace_id": {"type": "string", "minLength": 1},
+    "entity_ref": {"type": "string", "minLength": 1, "description": "Canonical reference of the physical or twin entity"},
+    "entity_kind": {"type": "string", "enum": ["robot", "twin", "fleet", "device"]},
+    "status": {"type": "string", "minLength": 1, "description": "Operational state, e.g. idle, moving, charging, error"},
+    "location": {"type": "string", "description": "JSON position/zone projection"},
+    "pose": {"type": "string", "description": "JSON orientation projection"},
+    "occupied_region": {"type": "string", "description": "JSON bounded region currently occupied"},
+    "goal_id": {"type": "string"},
+    "payload": {"type": "string"},
+    "source_system": {"const": "kinetovela"},
+    "source_ref": {"type": "string", "minLength": 1}
+  }
+}
