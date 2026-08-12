@@ -29,6 +29,11 @@ paths:
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateWorkspace'}}}}
       responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '409': {$ref: '#/components/responses/AlreadyExists'}}
+  /v1/workspaces/{id}/archive:
+    post:
+      operationId: archiveWorkspace
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Workspace soft-deleted with audit stamp}, '403': {$ref: '#/components/responses/Forbidden'}}
   /v1/attention:
     post:
       operationId: createAttention
@@ -70,8 +75,8 @@ paths:
       responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '409': {$ref: '#/components/responses/AlreadyExists'}}
     get:
       operationId: listHumanDecisions
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: request_ref, in: query, required: false, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
-      responses: {'200': {description: "Decision records; with request_ref returns the latest matching decision"}, '403': {$ref: '#/components/responses/Forbidden'}}
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: request_ref, in: query, required: false, schema: {type: string}}, {name: older_than_days, in: query, required: false, schema: {type: integer, minimum: 1}, description: "Retention hook: returns decisions older than N days"}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: "Decision records; with request_ref returns the latest matching decision; with older_than_days returns retention-due decisions"}, '403': {$ref: '#/components/responses/Forbidden'}}
   /v1/decisions/{id}:
     get:
       operationId: getHumanDecision
