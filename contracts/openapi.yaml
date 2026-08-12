@@ -150,6 +150,14 @@ paths:
       operationId: listTimeline
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
       responses: {'200': {description: Runtime timeline events}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/timeline/{goal_id}:
+    get:
+      operationId: goalTimeline
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses:
+        '200': {description: "Merged activity feed: runtime events, human decisions, interventions, plan revisions, outcome reviews"}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
   /v1/approvals:
     post:
       operationId: recordApprovalProjection
