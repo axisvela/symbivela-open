@@ -124,6 +124,13 @@ paths:
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PostComment'}}}}
       responses: {'201': {description: Comment posted}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/workspaces/{id}/metrics:
+    get:
+      operationId: workspaceMetrics
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: "Governance counters: goals, attention, approvals, exceptions, interventions, outcomes, artifacts, handoffs"}
+        '403': {$ref: '#/components/responses/Forbidden'}
   /v1/goals:
     post:
       operationId: createGoal
