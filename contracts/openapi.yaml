@@ -61,6 +61,27 @@ paths:
       operationId: getHumanDecision
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Immutable decision record}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/exception-cases:
+    post:
+      operationId: openExceptionCase
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/OpenExceptionCase'}}}}
+      responses: {'201': {description: Opened}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+    get:
+      operationId: listExceptionCases
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: status, in: query, required: false, schema: {type: string, enum: [open, resolving, resolved, escalated]}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Exception cases}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/exception-cases/{id}:
+    get:
+      operationId: getExceptionCase
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Exception case}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/exception-cases/{id}/status:
+    post:
+      operationId: setExceptionCaseStatus
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ExceptionStatus'}}}}
+      responses: {'200': {description: Status updated}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
   /v1/goals:
     post:
       operationId: createGoal
@@ -239,6 +260,22 @@ components:
         rationale: {type: string}
         context_digest: {type: string}
         causation_id: {type: string}
+    OpenExceptionCase:
+      type: object
+      required: [workspace_id, case_id, subject_ref, problem]
+      properties:
+        workspace_id: {type: string}
+        case_id: {type: string}
+        subject_ref: {type: string}
+        problem: {type: string}
+        evidence_refs: {type: string, description: JSON array text of evidence references}
+        candidate_actions: {type: string, description: JSON array text of candidate recovery actions}
+        deadline: {type: string, format: date-time}
+    ExceptionStatus:
+      type: object
+      required: [status]
+      properties:
+        status: {type: string, enum: [open, resolving, resolved, escalated]}
     CreateGoal:
       type: object
       required: [goal_id, workspace_id, title, owner_id, status]
