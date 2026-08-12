@@ -12,3 +12,7 @@ curl -X POST http://localhost:8080/v1/decisions \
 ```
 
 This records a human decision only. The decision must still be submitted to AEGIVELA before an executable grant exists. For handoffs, the trusted `X-SYMBIVELA-Actor` becomes `from_owner_id`; clients provide only the receiving owner.
+
+## End-to-end smoke
+
+`./e2e.sh` drives the core flow (workspace, goal, decision, my-work, evidence) with curl against a running core.
