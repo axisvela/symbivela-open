@@ -82,6 +82,27 @@ paths:
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ExceptionStatus'}}}}
       responses: {'200': {description: Status updated}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+  /v1/threads:
+    post:
+      operationId: createThread
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateThread'}}}}
+      responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+    get:
+      operationId: listThreads
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Threads for the workspace}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/threads/{id}:
+    get:
+      operationId: getThread
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Thread with comments}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/threads/{id}/comments:
+    post:
+      operationId: postComment
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PostComment'}}}}
+      responses: {'201': {description: Comment posted}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/goals:
     post:
       operationId: createGoal
@@ -260,6 +281,21 @@ components:
         rationale: {type: string}
         context_digest: {type: string}
         causation_id: {type: string}
+    CreateThread:
+      type: object
+      required: [workspace_id, thread_id, subject_type, subject_ref]
+      properties:
+        workspace_id: {type: string}
+        thread_id: {type: string}
+        subject_type: {type: string, enum: [goal, plan, exception, outcome, attention]}
+        subject_ref: {type: string}
+    PostComment:
+      type: object
+      required: [comment_id, body]
+      properties:
+        comment_id: {type: string}
+        body: {type: string}
+        mentions: {type: string, description: JSON array text of mentioned principals}
     OpenExceptionCase:
       type: object
       required: [workspace_id, case_id, subject_ref, problem]
