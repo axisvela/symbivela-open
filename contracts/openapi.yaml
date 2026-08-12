@@ -244,6 +244,16 @@ paths:
       operationId: getPlanProjection
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Latest plan projection}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/plans/{goal_id}/revisions:
+    get:
+      operationId: listPlanRevisions
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Plan revisions ordered by receipt}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/plans/{goal_id}/diff:
+    get:
+      operationId: diffPlanRevisions
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}, {name: from, in: query, required: true, schema: {type: string}}, {name: to, in: query, required: true, schema: {type: string}}]
+      responses: {'200': {description: Top-level payload changes between two revisions}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/handoffs:
     post:
       operationId: createHandoff
