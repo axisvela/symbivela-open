@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisrobo.io/contracts/aegivela-approval-request/v1",
+  "title": "AEGIVELA Approval Request Projection v1",
+  "description": "Read-only approval gate projection SYMBIVELA accepts from AEGIVELA. AEGIVELA decides whether an authorization gate is required; SYMBIVELA presents it. SYMBIVELA never creates or approves an ExecutionGrant.",
+  "type": "object",
+  "required": ["approval_id", "workspace_id", "request_ref", "subject_ref", "status", "risk_level", "source_system", "source_ref", "payload"],
+  "properties": {
+    "approval_id": {"type": "string", "minLength": 1},
+    "workspace_id": {"type": "string", "minLength": 1},
+    "request_ref": {"type": "string", "minLength": 1},
+    "subject_ref": {"type": "string", "minLength": 1},
+    "requested_scope": {"type": "string"},
+    "status": {"enum": ["pending", "approved", "rejected", "amended", "deferred", "expired"]},
+    "risk_level": {"type": "string", "minLength": 1},
+    "payload": {"type": "string", "description": "Approval packet JSON projection"},
+    "source_system": {"const": "aegivela"},
+    "source_ref": {"type": "string", "minLength": 1}
+  }
+}

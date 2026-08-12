@@ -1,0 +1,26 @@
+# Binaries and build output
+*.exe
+*.exe~
+*.test
+*.out
+bin/
+
+# Dependencies
+vendor/
+
+# Go toolchain files (parent workspace owned at repository root)
+go.work
+go.work.sum
+go.work.tmp
+
+# OS and editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local configuration and secrets
+.env
+.env.*
+*.key
+*.pem

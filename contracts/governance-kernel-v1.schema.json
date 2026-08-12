@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisrobo.io/contracts/governance-kernel/v1",
+  "title": "SYMBIVELA Governance Kernel v1",
+  "type": "object",
+  "definitions": {
+    "humanDecision": {
+      "type": "object",
+      "required": ["tenant_id", "decision_id", "workspace_id", "actor_id", "request_ref", "decision", "context_digest"],
+      "properties": {
+        "tenant_id": {"type": "string", "minLength": 1},
+        "decision_id": {"type": "string", "minLength": 1},
+        "workspace_id": {"type": "string", "minLength": 1},
+        "actor_id": {"type": "string", "minLength": 1},
+        "request_ref": {"type": "string", "minLength": 1},
+        "decision": {"enum": ["approve", "reject", "amend", "defer", "escalate"]},
+        "context_digest": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

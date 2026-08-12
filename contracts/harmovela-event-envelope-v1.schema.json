@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisrobo.io/contracts/harmovela-event-envelope/v1",
+  "title": "Harmovela Event Envelope v1",
+  "description": "Normalized runtime event envelope SYMBIVELA consumes from Harmovela. SYMBIVELA deduplicates by source reference and projects a timeline; it does not own protocol semantics or broker state.",
+  "type": "object",
+  "required": ["event_id", "workspace_id", "type", "subject_ref", "source_system", "source_ref"],
+  "properties": {
+    "event_id": {"type": "string", "minLength": 1},
+    "workspace_id": {"type": "string", "minLength": 1},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "type": {"enum": ["attention", "state", "exception", "recovery", "delegation"]},
+    "subject_ref": {"type": "string", "minLength": 1},
+    "summary": {"type": "string"},
+    "source_system": {"const": "harmovela"},
+    "source_ref": {"type": "string", "minLength": 1},
+    "payload": {"type": "string"},
+    "generate_attention": {"type": "boolean"}
+  }
+}

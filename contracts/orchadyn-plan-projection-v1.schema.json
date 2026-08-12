@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisrobo.io/contracts/orchadyn-plan-projection/v1",
+  "title": "ORCHADYN Plan Projection v1",
+  "description": "Read-only plan projection SYMBIVELA accepts from ORCHADYN. SYMBIVELA stores the snapshot and references; it never edits or owns the authoritative plan.",
+  "type": "object",
+  "required": ["goal_id", "plan_version", "source_system", "source_ref", "payload"],
+  "properties": {
+    "goal_id": {"type": "string", "minLength": 1},
+    "plan_version": {"type": "string", "minLength": 1},
+    "source_system": {"const": "orchadyn"},
+    "source_ref": {"type": "string", "minLength": 1},
+    "payload": {"type": "string", "description": "ORCHADYN plan JSON projection"}
+  }
+}

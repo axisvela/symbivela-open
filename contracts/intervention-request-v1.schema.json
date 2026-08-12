@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisrobo.io/contracts/intervention-request/v1",
+  "title": "SYMBIVELA Intervention Request v1",
+  "description": "Intervention requests are initiated in SYMBIVELA but are never executed by it. AEGIVELA must re-authorize each request and PRAXOVELA/RHEOVELA/KINETOVELA must execute it.",
+  "type": "object",
+  "required": ["intervention_id", "workspace_id", "target_ref", "verb"],
+  "properties": {
+    "intervention_id": {"type": "string", "minLength": 1},
+    "workspace_id": {"type": "string", "minLength": 1},
+    "target_ref": {"type": "string", "minLength": 1},
+    "verb": {"enum": ["pause", "resume", "cancel", "redirect", "constrain", "takeover", "emergency-stop", "recover"]},
+    "authority_ref": {"type": "string"},
+    "result_summary": {"type": "string"}
+  }
+}
