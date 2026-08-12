@@ -340,9 +340,10 @@ components:
         decision_id: {type: string}
         workspace_id: {type: string}
         request_ref: {type: string}
-        decision: {type: string, enum: [approve, reject, amend, defer, escalate]}
+        decision: {type: string, enum: [approve, approve_with_constraints, reject, amend, defer, escalate]}
         rationale: {type: string}
         context_digest: {type: string}
+        constraints: {type: string, description: "JSON constraints text required for approve_with_constraints (e.g. narrowed amount, region, vendor)"}
         causation_id: {type: string}
     RegisterArtifact:
       type: object

@@ -13,8 +13,9 @@
         "workspace_id": {"type": "string", "minLength": 1},
         "actor_id": {"type": "string", "minLength": 1},
         "request_ref": {"type": "string", "minLength": 1},
-        "decision": {"enum": ["approve", "reject", "amend", "defer", "escalate"]},
-        "context_digest": {"type": "string", "minLength": 1}
+        "decision": {"enum": ["approve", "approve_with_constraints", "reject", "amend", "defer", "escalate"]},
+        "context_digest": {"type": "string", "minLength": 1},
+        "constraints": {"type": "string", "description": "JSON constraints required for approve_with_constraints"}
       }
     }
   }
