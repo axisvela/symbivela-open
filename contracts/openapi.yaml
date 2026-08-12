@@ -135,6 +135,21 @@ paths:
       responses:
         '200': {description: "Governance counters: goals, attention, approvals, exceptions, interventions, outcomes, artifacts, handoffs"}
         '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/delegations:
+    post:
+      operationId: createDelegation
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateDelegation'}}}}
+      responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+    get:
+      operationId: listDelegations
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: delegatee_id, in: query, required: true, schema: {type: string}}]
+      responses: {'200': {description: Active delegations for the delegatee}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/delegations/{id}/revoke:
+    post:
+      operationId: revokeDelegation
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Revoked}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {description: Delegation not active}}
   /v1/goals:
     post:
       operationId: createGoal
@@ -408,6 +423,15 @@ components:
       required: [status]
       properties:
         status: {type: string, enum: [open, resolving, resolved, escalated]}
+    CreateDelegation:
+      type: object
+      required: [workspace_id, delegation_id, delegatee_id, expires_at]
+      properties:
+        workspace_id: {type: string}
+        delegation_id: {type: string}
+        delegatee_id: {type: string}
+        request_ref: {type: string, default: "*", description: "Request scope; '*' delegates all"}
+        expires_at: {type: string, format: date-time}
     CreateGoal:
       type: object
       required: [goal_id, workspace_id, title, owner_id, status]
