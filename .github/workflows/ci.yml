@@ -1,0 +1,24 @@
+name: Contract CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate JSON schemas parse
+        run: |
+          set -e
+          for f in contracts/*.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$f', 'utf8'))"
+            echo "ok: $f"
+          done
+      - name: Lint OpenAPI with Spectral
+        run: npx --yes @stoplight/spectral-cli lint contracts/openapi.yaml

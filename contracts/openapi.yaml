@@ -149,6 +149,21 @@ paths:
       operationId: composeEvidence
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$name: goal_id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Responsibility chain for the goal}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/audit/{goal_id}:
+    get:
+      operationId: composeAuditBundle
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$name: goal_id, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: Bounded audit bundle: goal, plan, approvals, decisions, interventions, handoffs, outcome, acceptances}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/my-work:
+    get:
+      operationId: myWorkSummary
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}]
+      responses:
+        '200': {description: Pending attention, approvals, and handoffs across the actor's workspaces}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
   /v1/goals/{id}/amend:
     post:
       operationId: amendGoal
