@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisrobo.io/contracts/oidc-auth-v1",
+  "title": "SYMBIVELA OIDC Auth v1",
+  "description": "Login-bootstrap endpoints for the backend-proxied OIDC Authorization Code + PKCE flow. The client_secret never leaves the server; the browser only exchanges the authorization code, its single-use state, and the PKCE code_verifier.",
+  "type": "object",
+  "definitions": {
+    "authorizeUrlResponse": {
+      "type": "object",
+      "required": ["url", "state"],
+      "properties": {
+        "url": {"type": "string", "minLength": 1, "description": "Absolute IdP authorization URL embedding the S256 code challenge and a fresh state nonce."},
+        "state": {"type": "string", "minLength": 1, "description": "Single-use state nonce the caller must echo back with the code at exchange time."}
+      }
+    },
+    "tokenRequest": {
+      "type": "object",
+      "required": ["code", "state", "code_verifier"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1, "description": "Authorization code returned by the IdP redirect."},
+        "state": {"type": "string", "minLength": 1, "description": "The state nonce issued by authorize-url; validated single-use server-side."},
+        "code_verifier": {"type": "string", "minLength": 43, "description": "PKCE verifier derived from the S256 challenge sent at authorize time."}
+      }
+    },
+    "tokenResponse": {
+      "type": "object",
+      "required": ["id_token"],
+      "properties": {
+        "id_token": {"type": "string", "minLength": 1, "description": "OIDC ID token; the browser stores it and sends it as Authorization: Bearer on API calls."}
+      }
+    },
+    "errorResponse": {
+      "type": "object",
+      "required": ["error"],
+      "properties": {
+        "error": {"type": "string", "description": "Error code: invalid_request, invalid_state, oidc_exchange_failed, rate_limited."}
+      }
+    }
+  }
+}
