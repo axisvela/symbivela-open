@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisrobo.io/contracts/federation-shift-v1",
+  "title": "SYMBIVELA Federation Shift v1",
+  "type": "object",
+  "description": "An outbound shift handoff enqueued in the federation outbox and delivered to a registered peer.",
+  "definitions": {
+    "peer": {
+      "type": "object",
+      "required": ["tenant_id", "peer_id", "peer_name", "endpoint"],
+      "properties": {
+        "tenant_id": {"type": "string", "minLength": 1},
+        "peer_id": {"type": "string", "minLength": 1},
+        "peer_name": {"type": "string", "minLength": 1},
+        "endpoint": {"type": "string", "format": "uri"},
+        "created_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "shift": {
+      "type": "object",
+      "required": ["tenant_id", "shift_id", "workspace_id", "peer_id", "scope_ref", "status"],
+      "properties": {
+        "tenant_id": {"type": "string", "minLength": 1},
+        "shift_id": {"type": "string", "minLength": 1},
+        "workspace_id": {"type": "string", "minLength": 1},
+        "peer_id": {"type": "string", "minLength": 1},
+        "scope_ref": {"type": "string", "minLength": 1},
+        "deadline": {"type": ["string", "null"], "format": "date-time"},
+        "status": {"enum": ["pending", "sent"]},
+        "created_at": {"type": "string", "format": "date-time"},
+        "sent_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "inboundShift": {
+      "type": "object",
+      "required": ["tenant_id", "workspace_id", "from_owner_id", "to_owner_id", "scope_ref"],
+      "properties": {
+        "tenant_id": {"type": "string", "minLength": 1},
+        "workspace_id": {"type": "string", "minLength": 1},
+        "from_owner_id": {"type": "string", "minLength": 1},
+        "to_owner_id": {"type": "string", "minLength": 1},
+        "scope_ref": {"type": "string", "minLength": 1},
+        "deadline": {"type": ["string", "null"], "format": "date-time"},
+        "received_at": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

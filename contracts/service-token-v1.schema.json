@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisrobo.io/contracts/service-token-v1",
+  "title": "SYMBIVELA Service Token v1",
+  "type": "object",
+  "description": "A scoped service credential presented as X-SYMBIVELA-Token. The registry stores only the SHA-256 hash.",
+  "definitions": {
+    "tokenRecord": {
+      "type": "object",
+      "required": ["tenant_id", "service", "token_hash", "status"],
+      "properties": {
+        "tenant_id": {"type": "string", "minLength": 1},
+        "service": {"type": "string", "minLength": 1},
+        "token_hash": {"type": "string", "pattern": "^sha256:"},
+        "status": {"enum": ["active", "revoked", "expired"]},
+        "created_at": {"type": "string", "format": "date-time"},
+        "expires_at": {"type": ["string", "null"], "format": "date-time"},
+        "revoked_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "rotateRequest": {
+      "type": "object",
+      "required": ["service"],
+      "properties": {
+        "service": {"type": "string", "minLength": 1}
+      }
+    },
+    "revokeRequest": {
+      "type": "object",
+      "required": ["token"],
+      "properties": {
+        "token": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

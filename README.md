@@ -60,6 +60,11 @@ Public, Apache-2.0 surface for integrating with SYMBIVELA.
 - `contracts/aegivela-approval-request-v1.schema.json` — approval gate projection contract.
 - `contracts/harmovela-event-envelope-v1.schema.json` — runtime event envelope contract.
 - `contracts/intervention-request-v1.schema.json` — intervention request contract.
+- `contracts/kinetovela-spatial-view-v1.schema.json` — robot/twin spatial projection contract.
+- `contracts/federation-handoff-v1.schema.json` — federation shift handoff envelope contract.
+- `contracts/notification-v1.schema.json` — user notification envelope (channels, status lifecycle).
+- `contracts/service-token-v1.schema.json` — scoped service credential registry record and rotation requests.
+- `contracts/federation-shift-v1.schema.json` — federation peer, outbound shift, and inbound shift records.
 
 ### SDKs
 

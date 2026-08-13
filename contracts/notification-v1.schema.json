@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisrobo.io/contracts/notification-v1",
+  "title": "SYMBIVELA Notification v1",
+  "type": "object",
+  "description": "A user notification addressed to a recipient, delivered through a configured channel.",
+  "required": ["tenant_id", "workspace_id", "notification_id", "recipient_id", "kind", "body"],
+  "properties": {
+    "tenant_id": {"type": "string", "minLength": 1},
+    "workspace_id": {"type": "string", "minLength": 1},
+    "notification_id": {"type": "string", "minLength": 1},
+    "recipient_id": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["approval", "handoff", "exception", "intervention", "outcome", "information"]},
+    "subject_type": {"type": "string"},
+    "subject_ref": {"type": "string"},
+    "body": {"type": "string", "minLength": 1},
+    "channel": {"type": "string", "enum": ["email", "mobile", "webhook"]},
+    "status": {"enum": ["pending", "sent", "failed"]},
+    "created_at": {"type": "string", "format": "date-time"},
+    "sent_at": {"type": ["string", "null"], "format": "date-time"}
+  }
+}
