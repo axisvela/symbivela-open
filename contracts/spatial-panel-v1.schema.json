@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisrobo.io/contracts/spatial-panel-v1",
+  "title": "SYMBIVELA Spatial Panel v1",
+  "description": "Aggregated spatial projection and safety-zone data for one workspace, consumed by the enterprise spatial panel.",
+  "type": "object",
+  "required": ["tenant_id", "workspace_id", "entities", "zones", "composed_at"],
+  "properties": {
+    "tenant_id": {"type": "string", "minLength": 1},
+    "workspace_id": {"type": "string", "minLength": 1},
+    "entities": {"type": "array", "items": {"$ref": "#/$defs/entity"}},
+    "zones": {"type": "array", "items": {"$ref": "#/$defs/zone"}},
+    "composed_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "entity": {
+      "type": "object",
+      "required": ["tenant_id", "workspace_id", "entity_ref", "entity_kind", "status", "location", "payload", "source_system", "source_ref", "received_at", "in_violation"],
+      "properties": {
+        "tenant_id": {"type": "string", "minLength": 1},
+        "workspace_id": {"type": "string", "minLength": 1},
+        "entity_ref": {"type": "string", "minLength": 1},
+        "entity_kind": {"type": "string"},
+        "status": {"type": "string"},
+        "location": {"type": "string"},
+        "pose": {"type": "string"},
+        "occupied_region": {"type": "string"},
+        "goal_id": {"type": "string"},
+        "payload": {"type": "string"},
+        "source_system": {"type": "string"},
+        "source_ref": {"type": "string"},
+        "received_at": {"type": "string", "format": "date-time"},
+        "in_violation": {"type": "boolean"},
+        "violations": {"type": "array", "items": {"$ref": "#/$defs/violation"}}
+      }
+    },
+    "zone": {
+      "type": "object",
+      "required": ["tenant_id", "workspace_id", "zone_id", "name", "zone_type"],
+      "properties": {
+        "tenant_id": {"type": "string"},
+        "workspace_id": {"type": "string"},
+        "zone_id": {"type": "string"},
+        "name": {"type": "string"},
+        "zone_type": {"enum": ["rect", "circle"]},
+        "min_x": {"type": "number"},
+        "min_y": {"type": "number"},
+        "max_x": {"type": "number"},
+        "max_y": {"type": "number"},
+        "center_x": {"type": "number"},
+        "center_y": {"type": "number"},
+        "radius": {"type": "number"},
+        "created_at": {"type": "string", "format": "date-time"},
+        "violation_count": {"type": "integer"}
+      }
+    },
+    "violation": {
+      "type": "object",
+      "required": ["tenant_id", "zone_id", "entity_ref", "workspace_id", "location", "occurred_at"],
+      "properties": {
+        "tenant_id": {"type": "string"},
+        "zone_id": {"type": "string"},
+        "entity_ref": {"type": "string"},
+        "workspace_id": {"type": "string"},
+        "location": {"type": "string"},
+        "occurred_at": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}
