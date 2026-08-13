@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SafetyZone",
+  "description": "A tenant-scoped spatial exclusion zone. KINETOVELA projections whose parsed location falls inside a zone trigger a safety violation, attention, and exception case.",
+  "type": "object",
+  "required": ["tenant_id", "workspace_id", "zone_id", "name", "zone_type"],
+  "properties": {
+    "tenant_id": { "type": "string" },
+    "workspace_id": { "type": "string" },
+    "zone_id": { "type": "string" },
+    "name": { "type": "string" },
+    "zone_type": { "enum": ["rect", "circle"] },
+    "min_x": { "type": "number" },
+    "min_y": { "type": "number" },
+    "max_x": { "type": "number" },
+    "max_y": { "type": "number" },
+    "center_x": { "type": "number" },
+    "center_y": { "type": "number" },
+    "radius": { "type": "number" },
+    "created_at": { "type": "string", "format": "date-time" }
+  }
+}
