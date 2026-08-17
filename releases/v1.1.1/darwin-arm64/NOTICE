@@ -1,0 +1,13 @@
+SYMBIVELA Core Binary Release v1.1.1
+
+Source: https://github.com/axisrobo/SYMBIVELA commit 7d0ccdf.
+
+Artifacts:
+  - symbivela: SYMBIVELA Governance Kernel API service (HTTP).
+  - symbivela-migrate: SYMBIVELA database migration tool.
+  - symbivela-audit: SYMBIVELA audit export CLI.
+  - symbivela-bench: SYMBIVELA human-autonomy collaboration benchmark.
+
+Platform: darwin/arm64.
+
+License: AGPL-3.0-or-later. See LICENSE-SYMBIVELA-CORE.txt.

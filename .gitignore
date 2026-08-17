@@ -5,6 +5,9 @@
 *.out
 bin/
 
+# Approved core binaries published in release manifests
+!releases/**
+
 # Dependencies
 vendor/
 
