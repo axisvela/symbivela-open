@@ -1,5 +1,5 @@
 {
-  "name": "@axisrobo/symbivela",
+  "name": "@axisvela/symbivela",
   "version": "0.1.0",
   "description": "TypeScript client for the SYMBIVELA Governance Kernel API",
   "main": "dist/index.js",

@@ -12,7 +12,7 @@ go test ./...
 ```
 
 ```go
-import "github.com/axisrobo/symbivela-open/sdk/go/symbivela"
+import "github.com/axisvela/symbivela-open/sdk/go/symbivela"
 
 client := symbivela.New("http://localhost:8080", "supply-chain", "approver-a")
 err := client.CreateGoal(ctx, "g1", "ws", "Restock parts", "approver-a", "goal-1")
