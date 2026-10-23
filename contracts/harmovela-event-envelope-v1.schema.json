@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://symbivela.axisrobo.io/contracts/harmovela-event-envelope/v1",
+  "$id": "https://symbivela.axisvela.io/contracts/harmovela-event-envelope/v1",
   "title": "Harmovela Event Envelope v1",
   "description": "Normalized runtime event envelope SYMBIVELA consumes from Harmovela. SYMBIVELA deduplicates by source reference and projects a timeline; it does not own protocol semantics or broker state.",
   "type": "object",

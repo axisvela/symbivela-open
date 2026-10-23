@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://symbivela.axisrobo.io/contracts/spatial-panel-v1",
+  "$id": "https://symbivela.axisvela.io/contracts/spatial-panel-v1",
   "title": "SYMBIVELA Spatial Panel v1",
   "description": "Aggregated spatial projection and safety-zone data for one workspace, consumed by the enterprise spatial panel.",
   "type": "object",

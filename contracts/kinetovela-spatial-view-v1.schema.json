@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://symbivela.axisrobo.io/contracts/kinetovela-spatial-view/v1",
+  "$id": "https://symbivela.axisvela.io/contracts/kinetovela-spatial-view/v1",
   "title": "KINETOVELA Spatial View v1",
   "description": "Read-only robot/twin spatial projection SYMBIVELA accepts from KINETOVELA. SYMBIVELA stores the snapshot and references; it never edits or owns the physical world state.",
   "type": "object",
