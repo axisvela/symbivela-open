@@ -299,18 +299,34 @@ paths:
   /v1/work-projections:
     post:
       operationId: recordWorkProjection
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {name: X-SYMBIVELA-Service, in: header, required: true, schema: {type: string, const: coordivela}}]
-      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkProjection'}}}}
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {name: X-SYMBIVELA-Service, in: header, required: true, schema: {type: string, const: coordivela}}, {$ref: '#/components/parameters/ServiceToken'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkProjectionRequest'}}}}
       responses: {'201': {description: Stored or advanced}, '200': {description: Stale or equal version ignored}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {description: Service token missing or invalid}, '409': {description: Projection source already seen or workspace conflict}}
     get:
       operationId: listWorkProjections
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
-      responses: {'200': {description: Latest work projections for the workspace}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+      responses:
+        '200':
+          description: Latest work projections for the workspace, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/WorkProjection'}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
   /v1/work-projections/{work_item_id}:
     get:
       operationId: getWorkProjection
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: work_item_id, in: path, required: true, schema: {type: string}}]
-      responses: {'200': {description: Latest work projection}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+      responses:
+        '200':
+          description: Latest work projection
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WorkProjection'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
   /v1/my-work:
     get:
       operationId: myWorkSummary
@@ -401,6 +417,7 @@ components:
   parameters:
     Tenant: {name: X-SYMBIVELA-Tenant, in: header, required: true, schema: {type: string, minLength: 1}}
     Actor: {name: X-SYMBIVELA-Actor, in: header, required: true, schema: {type: string, minLength: 1}}
+    ServiceToken: {name: X-SYMBIVELA-Token, in: header, required: true, schema: {type: string, minLength: 1}}
     IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1}, description: Unique per tenant for a mutating command. Replay with the same key is rejected.}
   schemas:
     CreateWorkspace:
@@ -561,6 +578,8 @@ components:
         payload: {type: string, description: Approval packet JSON projection}
         source_system: {type: string, enum: [aegivela]}
         source_ref: {type: string}
+    WorkProjectionRequest:
+      $ref: './work-projection-request-v1.schema.json'
     WorkProjection:
       $ref: './work-projection-v1.schema.json'
     PlanProjection:

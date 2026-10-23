@@ -4,7 +4,7 @@
   "title": "COORDIVELA Work Projection v1",
   "description": "Read-only coordinated work snapshot SYMBIVELA accepts from COORDIVELA. SYMBIVELA stores the snapshot and references; it never owns coordination state.",
   "type": "object",
-  "required": ["work_item_id", "workspace_id", "state", "version", "updated_at", "source_system", "source_ref"],
+  "required": ["work_item_id", "workspace_id", "state", "claim_count", "open_finding_count", "version", "updated_at", "source_system", "source_ref"],
   "properties": {
     "tenant_id": {"type": "string", "minLength": 1, "readOnly": true},
     "work_item_id": {"type": "string", "minLength": 1},
@@ -14,6 +14,7 @@
     "state": {"enum": ["proposed", "ready", "assigned", "executing", "blocked", "review", "verifying", "done", "failed", "cancelled"]},
     "owner": {
       "type": "object",
+      "description": "Omit when absent.",
       "properties": {
         "kind": {"type": "string", "minLength": 1},
         "ref": {"type": "string", "minLength": 1}
@@ -34,7 +35,7 @@
       "type": "object",
       "properties": {
         "version": {"type": "integer", "minimum": 1},
-        "objective": {"type": "string"}
+        "objective": {"type": "string", "minLength": 1}
       },
       "required": ["version", "objective"],
       "additionalProperties": false
