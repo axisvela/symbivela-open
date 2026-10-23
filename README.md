@@ -57,6 +57,8 @@ Public, Apache-2.0 surface for integrating with SYMBIVELA.
 - `contracts/openapi.yaml` — Governance Kernel HTTP API v1 (trusted-context headers, idempotency, workspace roles).
 - `contracts/governance-kernel-v1.schema.json` — core human-governance objects (Workspace, AttentionItem, HumanDecision, Handoff, Goal).
 - `contracts/orchadyn-plan-projection-v1.schema.json` — read-only plan projection contract.
+- `contracts/work-projection-v1.schema.json` — read-only COORDIVELA work projection.
+- `contracts/work-projection-request-v1.schema.json` — COORDIVELA work projection write body.
 - `contracts/aegivela-approval-request-v1.schema.json` — approval gate projection contract.
 - `contracts/harmovela-event-envelope-v1.schema.json` — runtime event envelope contract.
 - `contracts/intervention-request-v1.schema.json` — intervention request contract.
@@ -74,6 +76,7 @@ Public, Apache-2.0 surface for integrating with SYMBIVELA.
 ### Examples
 
 - `examples/governance-kernel/` — trusted-context API usage.
+- `examples/work-projection/` — COORDIVELA work projection publication and reads.
 
 ## Quick Start
 
