@@ -11,7 +11,7 @@ export interface MyWork {
   attention: Attention[];
   approvals: unknown[];
   handoffs: unknown[];
-  work_projections: WorkProjection[];
+  work_projections?: WorkProjection[];
 }
 
 export interface WorkProjectionOwner {
@@ -32,8 +32,20 @@ export interface WorkProjectionPlanSummary {
 export interface WorkProjectionFinding {
   id: string;
   kind: string;
-  severity: string;
+  severity: "blocking";
 }
+
+export type WorkProjectionState =
+  | "proposed"
+  | "ready"
+  | "assigned"
+  | "executing"
+  | "blocked"
+  | "review"
+  | "verifying"
+  | "done"
+  | "failed"
+  | "cancelled";
 
 export interface WorkProjection {
   tenant_id?: string;
@@ -41,7 +53,7 @@ export interface WorkProjection {
   goal_ref?: string;
   workspace_id: string;
   repository?: string;
-  state: string;
+  state: WorkProjectionState;
   owner?: WorkProjectionOwner;
   dependency_summary?: WorkProjectionDependencySummary;
   coordination_plan_summary?: WorkProjectionPlanSummary;
@@ -51,7 +63,7 @@ export interface WorkProjection {
   evidence_refs?: string[];
   version: number;
   updated_at: string;
-  source_system: string;
+  source_system: "coordivela";
   source_ref: string;
   received_at?: string;
 }
@@ -114,7 +126,8 @@ export class SymbivelaClient {
 
   async myWork(): Promise<MyWork> {
     const response = await this.request("GET", "/v1/my-work");
-    return (await response.json()) as MyWork;
+    const work = (await response.json()) as MyWork;
+    return { ...work, work_projections: work.work_projections ?? [] };
   }
 
   async getWorkProjection(workItemId: string): Promise<WorkProjection> {

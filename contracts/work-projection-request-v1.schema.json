@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://symbivela.axisvela.io/contracts/work-projection-request/v1",
+  "title": "COORDIVELA Work Projection Request v1",
+  "description": "Write body SYMBIVELA accepts from COORDIVELA for a read-only coordinated work snapshot. COORDIVELA remains authoritative for coordination state.",
+  "type": "object",
+  "required": ["work_item_id", "workspace_id", "state", "version", "updated_at", "source_system", "source_ref"],
+  "properties": {
+    "work_item_id": {"type": "string", "minLength": 1},
+    "goal_ref": {"type": "string"},
+    "workspace_id": {"type": "string", "minLength": 1},
+    "repository": {"type": "string"},
+    "state": {"enum": ["proposed", "ready", "assigned", "executing", "blocked", "review", "verifying", "done", "failed", "cancelled"]},
+    "owner": {
+      "type": "object",
+      "description": "Omit when absent.",
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "ref": {"type": "string", "minLength": 1}
+      },
+      "required": ["kind", "ref"],
+      "additionalProperties": false
+    },
+    "dependency_summary": {
+      "type": "object",
+      "properties": {
+        "count": {"type": "integer", "minimum": 0},
+        "work_item_ids": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      },
+      "required": ["work_item_ids"],
+      "additionalProperties": false
+    },
+    "coordination_plan_summary": {
+      "type": "object",
+      "properties": {
+        "version": {"type": "integer", "minimum": 1},
+        "objective": {"type": "string", "minLength": 1}
+      },
+      "required": ["version", "objective"],
+      "additionalProperties": false
+    },
+    "claim_count": {"type": "integer", "minimum": 0},
+    "open_finding_count": {"type": "integer", "minimum": 0},
+    "blocking_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "kind": {"type": "string", "minLength": 1},
+          "severity": {"const": "blocking"}
+        },
+        "required": ["id", "kind", "severity"],
+        "additionalProperties": false
+      }
+    },
+    "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "version": {"type": "integer", "minimum": 1},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "source_system": {"const": "coordivela"},
+    "source_ref": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

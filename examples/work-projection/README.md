@@ -25,9 +25,9 @@ COORDIVELA publishes one latest work-projection snapshot per work item. SYMBIVEL
 Publish the snapshot with a COORDIVELA service token:
 
 ```bash
-curl -X POST http://localhost:8080/v1/work-projections \
+curl -X POST http://localhost:1926/v1/work-projections \
   -H "Content-Type: application/json" \
-  -H "X-SYMBIVELA-Tenant: supply-chain" \
+  -H "X-SYMBIVELA-Tenant: acme" \
   -H "X-SYMBIVELA-Service: coordivela" \
   -H "X-SYMBIVELA-Token: $SERVICE_TOKEN" \
   -d @payload.json
@@ -36,9 +36,9 @@ curl -X POST http://localhost:8080/v1/work-projections \
 Read the latest snapshot for a work item:
 
 ```bash
-curl http://localhost:8080/v1/work-projections/wi-1 \
-  -H "X-SYMBIVELA-Tenant: supply-chain" \
-  -H "X-SYMBIVELA-Actor: approver-a"
+curl http://localhost:1926/v1/work-projections/wi-1 \
+  -H "X-SYMBIVELA-Tenant: acme" \
+  -H "X-SYMBIVELA-Actor: alice"
 ```
 
 A version that is stale or equal to the stored version is ignored. The `source_ref` makes replay of the same projection source idempotent.

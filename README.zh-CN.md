@@ -57,6 +57,8 @@ SYMBIVELA 是**控制表面，而非控制权威**。它拥有工作空间体验
 - `contracts/openapi.yaml` —— 治理内核 HTTP API v1（受信任上下文头、幂等、工作空间角色）。
 - `contracts/governance-kernel-v1.schema.json` —— 核心人类治理对象（Workspace、AttentionItem、HumanDecision、Handoff、Goal）。
 - `contracts/orchadyn-plan-projection-v1.schema.json` —— 只读计划投影契约。
+- `contracts/work-projection-v1.schema.json` —— 只读 COORDIVELA 工作投影。
+- `contracts/work-projection-request-v1.schema.json` —— COORDIVELA 工作投影写入请求体。
 - `contracts/aegivela-approval-request-v1.schema.json` —— 审批门禁投影契约。
 - `contracts/harmovela-event-envelope-v1.schema.json` —— 运行时事件信封契约。
 - `contracts/intervention-request-v1.schema.json` —— 干预请求契约。
