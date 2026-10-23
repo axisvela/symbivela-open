@@ -41,4 +41,4 @@ curl http://localhost:1926/v1/work-projections/wi-1 \
   -H "X-SYMBIVELA-Actor: alice"
 ```
 
-A version that is stale or equal to the stored version is ignored. The `source_ref` makes replay of the same projection source idempotent.
+A version lower than the stored version is ignored. An equal version with a new `source_ref` updates the snapshot so plan/claim/finding changes propagate; replaying the same `source_ref` is idempotent.
