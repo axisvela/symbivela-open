@@ -33,17 +33,60 @@ type Attention struct {
 }
 
 type Evidence struct {
-	SubjectRef string          `json:"subject_ref"`
-	Decisions  []json.RawMessage `json:"decisions"`
+	SubjectRef    string            `json:"subject_ref"`
+	Decisions     []json.RawMessage `json:"decisions"`
 	Interventions []json.RawMessage `json:"interventions"`
 	Artifacts     []json.RawMessage `json:"artifacts"`
 }
 
 type MyWork struct {
-	WorkspaceCount int             `json:"workspace_count"`
-	Attention      []Attention     `json:"attention"`
-	Approvals      []json.RawMessage `json:"approvals"`
-	Handoffs       []json.RawMessage `json:"handoffs"`
+	WorkspaceCount  int               `json:"workspace_count"`
+	Attention       []Attention       `json:"attention"`
+	Approvals       []json.RawMessage `json:"approvals"`
+	Handoffs        []json.RawMessage `json:"handoffs"`
+	WorkProjections []WorkProjection  `json:"work_projections"`
+}
+
+type WorkProjectionOwner struct {
+	Kind string `json:"kind"`
+	Ref  string `json:"ref"`
+}
+
+type WorkProjectionDependencySummary struct {
+	Count       int      `json:"count"`
+	WorkItemIDs []string `json:"work_item_ids"`
+}
+
+type WorkProjectionPlanSummary struct {
+	Version   int64  `json:"version"`
+	Objective string `json:"objective"`
+}
+
+type WorkProjectionFinding struct {
+	ID       string `json:"id"`
+	Kind     string `json:"kind"`
+	Severity string `json:"severity"`
+}
+
+type WorkProjection struct {
+	TenantID                string                           `json:"tenant_id,omitempty"`
+	WorkItemID              string                           `json:"work_item_id"`
+	GoalRef                 string                           `json:"goal_ref,omitempty"`
+	WorkspaceID             string                           `json:"workspace_id"`
+	Repository              string                           `json:"repository,omitempty"`
+	State                   string                           `json:"state"`
+	Owner                   *WorkProjectionOwner             `json:"owner,omitempty"`
+	DependencySummary       *WorkProjectionDependencySummary `json:"dependency_summary,omitempty"`
+	CoordinationPlanSummary *WorkProjectionPlanSummary       `json:"coordination_plan_summary,omitempty"`
+	ClaimCount              int                              `json:"claim_count"`
+	OpenFindingCount        int                              `json:"open_finding_count"`
+	BlockingFindings        []WorkProjectionFinding          `json:"blocking_findings,omitempty"`
+	EvidenceRefs            []string                         `json:"evidence_refs,omitempty"`
+	Version                 int64                            `json:"version"`
+	UpdatedAt               string                           `json:"updated_at"`
+	SourceSystem            string                           `json:"source_system"`
+	SourceRef               string                           `json:"source_ref"`
+	ReceivedAt              string                           `json:"received_at,omitempty"`
 }
 
 // Do issues a raw request with trusted-context headers and decodes the JSON body.
@@ -115,4 +158,16 @@ func (c *Client) MyWork(ctx context.Context) (MyWork, error) {
 	var work MyWork
 	err := c.Do(ctx, http.MethodGet, "/v1/my-work", nil, "", &work)
 	return work, err
+}
+
+func (c *Client) GetWorkProjection(ctx context.Context, workItemID string) (WorkProjection, error) {
+	var projection WorkProjection
+	err := c.Do(ctx, http.MethodGet, "/v1/work-projections/"+url.PathEscape(workItemID), nil, "", &projection)
+	return projection, err
+}
+
+func (c *Client) ListWorkProjections(ctx context.Context, workspaceID string) ([]WorkProjection, error) {
+	var projections []WorkProjection
+	err := c.Do(ctx, http.MethodGet, "/v1/work-projections?workspace_id="+url.QueryEscape(workspaceID), nil, "", &projections)
+	return projections, err
 }
