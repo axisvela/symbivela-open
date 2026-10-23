@@ -301,7 +301,7 @@ paths:
       operationId: recordWorkProjection
       parameters: [{$ref: '#/components/parameters/Tenant'}, {name: X-SYMBIVELA-Service, in: header, required: true, schema: {type: string, const: coordivela}}, {$ref: '#/components/parameters/ServiceToken'}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkProjectionRequest'}}}}
-      responses: {'201': {description: Stored or advanced}, '200': {description: Stale or equal version ignored}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {description: Service token missing or invalid}, '409': {description: Projection source already seen or workspace conflict}}
+      responses: {'201': {description: Stored or advanced (including an equal-version new snapshot)}, '200': {description: Lower version ignored}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {description: Service token missing or invalid}, '409': {description: Projection source already seen or workspace conflict}}
     get:
       operationId: listWorkProjections
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
