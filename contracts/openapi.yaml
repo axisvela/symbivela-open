@@ -296,12 +296,27 @@ paths:
         '200': {description: "Bounded audit bundle: goal, plan, approvals, decisions, interventions, handoffs, artifacts, outcome, acceptances"}
         '403': {$ref: '#/components/responses/Forbidden'}
         '404': {$ref: '#/components/responses/NotFound'}
+  /v1/work-projections:
+    post:
+      operationId: recordWorkProjection
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {name: X-SYMBIVELA-Service, in: header, required: true, schema: {type: string, const: coordivela}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkProjection'}}}}
+      responses: {'201': {description: Stored or advanced}, '200': {description: Stale or equal version ignored}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {description: Service token missing or invalid}, '409': {description: Projection source already seen or workspace conflict}}
+    get:
+      operationId: listWorkProjections
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Latest work projections for the workspace}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/work-projections/{work_item_id}:
+    get:
+      operationId: getWorkProjection
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: work_item_id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Latest work projection}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/my-work:
     get:
       operationId: myWorkSummary
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}]
       responses:
-        '200': {description: "Pending attention, approvals, and handoffs across the actor's workspaces"}
+        '200': {description: "Pending attention, approvals, handoffs, and active coordinated work across the actor's workspaces"}
         '400': {$ref: '#/components/responses/InvalidRequest'}
   /v1/spatial/views:
     post:
@@ -546,6 +561,8 @@ components:
         payload: {type: string, description: Approval packet JSON projection}
         source_system: {type: string, enum: [aegivela]}
         source_ref: {type: string}
+    WorkProjection:
+      $ref: './work-projection-v1.schema.json'
     PlanProjection:
       type: object
       required: [goal_id, plan_version, source_system, source_ref, payload]

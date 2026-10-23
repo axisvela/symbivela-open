@@ -11,6 +11,49 @@ export interface MyWork {
   attention: Attention[];
   approvals: unknown[];
   handoffs: unknown[];
+  work_projections: WorkProjection[];
+}
+
+export interface WorkProjectionOwner {
+  kind: string;
+  ref: string;
+}
+
+export interface WorkProjectionDependencySummary {
+  count: number;
+  work_item_ids: string[];
+}
+
+export interface WorkProjectionPlanSummary {
+  version: number;
+  objective: string;
+}
+
+export interface WorkProjectionFinding {
+  id: string;
+  kind: string;
+  severity: string;
+}
+
+export interface WorkProjection {
+  tenant_id?: string;
+  work_item_id: string;
+  goal_ref?: string;
+  workspace_id: string;
+  repository?: string;
+  state: string;
+  owner?: WorkProjectionOwner;
+  dependency_summary?: WorkProjectionDependencySummary;
+  coordination_plan_summary?: WorkProjectionPlanSummary;
+  claim_count: number;
+  open_finding_count: number;
+  blocking_findings?: WorkProjectionFinding[];
+  evidence_refs?: string[];
+  version: number;
+  updated_at: string;
+  source_system: string;
+  source_ref: string;
+  received_at?: string;
 }
 
 /** Typed client for the SYMBIVELA Governance Kernel API. */
@@ -72,5 +115,15 @@ export class SymbivelaClient {
   async myWork(): Promise<MyWork> {
     const response = await this.request("GET", "/v1/my-work");
     return (await response.json()) as MyWork;
+  }
+
+  async getWorkProjection(workItemId: string): Promise<WorkProjection> {
+    const response = await this.request("GET", `/v1/work-projections/${encodeURIComponent(workItemId)}`);
+    return (await response.json()) as WorkProjection;
+  }
+
+  async listWorkProjections(workspaceId: string): Promise<WorkProjection[]> {
+    const response = await this.request("GET", `/v1/work-projections?workspace_id=${encodeURIComponent(workspaceId)}`);
+    return (await response.json()) as WorkProjection[];
   }
 }

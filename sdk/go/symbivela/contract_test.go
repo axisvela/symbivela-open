@@ -20,6 +20,8 @@ func TestSDKPathsMatchContract(t *testing.T) {
 		"/v1/attention:",
 		"/v1/evidence/{goal_id}:",
 		"/v1/my-work:",
+		"/v1/work-projections:",
+		"/v1/work-projections/{work_item_id}:",
 	}
 	for _, path := range required {
 		if !strings.Contains(contract, path) {
