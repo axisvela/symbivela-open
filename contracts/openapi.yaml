@@ -9,7 +9,7 @@ info:
     handoff from_owner_id in request bodies. Workspace-scoped commands require the
     authenticated actor to hold the workspace role listed for the operation.
 servers:
-  - url: https://api.symbivela.axisrobo.io
+  - url: https://api.symbivela.axisvela.io
 paths:
   /health:
     get:

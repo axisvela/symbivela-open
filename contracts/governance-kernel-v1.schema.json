@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://symbivela.axisrobo.io/contracts/governance-kernel/v1",
+  "$id": "https://symbivela.axisvela.io/contracts/governance-kernel/v1",
   "title": "SYMBIVELA Governance Kernel v1",
   "type": "object",
   "definitions": {

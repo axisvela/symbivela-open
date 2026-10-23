@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://symbivela.axisrobo.io/contracts/notification-v1",
+  "$id": "https://symbivela.axisvela.io/contracts/notification-v1",
   "title": "SYMBIVELA Notification v1",
   "type": "object",
   "description": "A user notification addressed to a recipient, delivered through a configured channel.",

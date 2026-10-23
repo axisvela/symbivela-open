@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://symbivela.axisrobo.io/contracts/intervention-request/v1",
+  "$id": "https://symbivela.axisvela.io/contracts/intervention-request/v1",
   "title": "SYMBIVELA Intervention Request v1",
   "description": "Intervention requests are initiated in SYMBIVELA but are never executed by it. AEGIVELA must re-authorize each request and PRAXOVELA/RHEOVELA/KINETOVELA must execute it.",
   "type": "object",

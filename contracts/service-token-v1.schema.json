@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://symbivela.axisrobo.io/contracts/service-token-v1",
+  "$id": "https://symbivela.axisvela.io/contracts/service-token-v1",
   "title": "SYMBIVELA Service Token v1",
   "type": "object",
   "description": "A scoped service credential presented as X-SYMBIVELA-Token. The registry stores only the SHA-256 hash.",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://symbivela.axisrobo.io/contracts/oidc-auth-v1",
+  "$id": "https://symbivela.axisvela.io/contracts/oidc-auth-v1",
   "title": "SYMBIVELA OIDC Auth v1",
   "description": "Login-bootstrap endpoints for the backend-proxied OIDC Authorization Code + PKCE flow. The client_secret never leaves the server; the browser only exchanges the authorization code, its single-use state, and the PKCE code_verifier.",
   "type": "object",

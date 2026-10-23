@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://symbivela.axisrobo.io/contracts/aegivela-approval-request/v1",
+  "$id": "https://symbivela.axisvela.io/contracts/aegivela-approval-request/v1",
   "title": "AEGIVELA Approval Request Projection v1",
   "description": "Read-only approval gate projection SYMBIVELA accepts from AEGIVELA. AEGIVELA decides whether an authorization gate is required; SYMBIVELA presents it. SYMBIVELA never creates or approves an ExecutionGrant.",
   "type": "object",

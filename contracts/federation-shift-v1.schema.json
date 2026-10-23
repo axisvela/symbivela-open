@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://symbivela.axisrobo.io/contracts/federation-shift-v1",
+  "$id": "https://symbivela.axisvela.io/contracts/federation-shift-v1",
   "title": "SYMBIVELA Federation Shift v1",
   "type": "object",
   "description": "An outbound shift handoff enqueued in the federation outbox and delivered to a registered peer.",

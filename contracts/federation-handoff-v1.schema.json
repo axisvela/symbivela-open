@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://symbivela.axisrobo.io/contracts/federation-handoff/v1",
+  "$id": "https://symbivela.axisvela.io/contracts/federation-handoff/v1",
   "title": "SYMBIVELA Federation Handoff v1",
   "description": "Cross-organization partner handoff envelope for federated workspaces (EE). SYMBIVELA records the handoff; partner systems consume it through their own contracts.",
   "type": "object",
