@@ -63,6 +63,9 @@ Public, Apache-2.0 surface for integrating with SYMBIVELA.
 - `contracts/harmovela-event-envelope-v1.schema.json` — runtime event envelope contract.
 - `contracts/intervention-request-v1.schema.json` — intervention request contract.
 - `contracts/kinetovela-spatial-view-v1.schema.json` — robot/twin spatial projection contract.
+- `contracts/oidc-auth-v1.schema.json` — OIDC browser sign-in contract.
+- `contracts/safety-zone-v1.schema.json` — spatial exclusion zone and violation contract.
+- `contracts/spatial-panel-v1.schema.json` — enterprise spatial panel aggregation contract.
 - `contracts/federation-handoff-v1.schema.json` — federation shift handoff envelope contract.
 - `contracts/notification-v1.schema.json` — user notification envelope (channels, status lifecycle).
 - `contracts/service-token-v1.schema.json` — scoped service credential registry record and rotation requests.
