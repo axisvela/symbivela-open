@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: SYMBIVELA Governance Kernel API
   version: 1.0.0
+  x-product-version: 1.3.0
   description: |
     Public API for the AGPL SYMBIVELA Governance Kernel. Tenant and actor identity
     are supplied by trusted authentication middleware and represented by headers in
@@ -220,6 +221,32 @@ paths:
       operationId: getApproval
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Approval projection}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/approvals/{id}/ee-decision:
+    post:
+      operationId: recordEEApprovalDecision
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EEApprovalDecision'}}}}
+      responses:
+        '200': {description: "Forwarded to COORDIVELA EE; a recorded acknowledgement is not execution success"}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {description: Approval external reference conflict}
+        '429': {description: EE command rate limited; retry later}
+        '502': {description: EE unavailable or returned an invalid response}
+        '503': {description: AEGIVELA authorization unavailable}
+  /v1/approvals/{id}/external-refs:
+    post:
+      operationId: linkApprovalExternalRef
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ApprovalExternalRef'}}}}
+      responses:
+        '201': {description: External reference linked}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {description: External reference conflict}
+        '503': {description: External reference store unavailable}
   /v1/interventions:
     post:
       operationId: requestIntervention
@@ -231,6 +258,20 @@ paths:
       operationId: getIntervention
       parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
       responses: {'200': {description: Intervention record}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/interventions/{id}/ee-command:
+    post:
+      operationId: recordEEInterventionCommand
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EEInterventionCommand'}}}}
+      responses:
+        '200': {description: "Forwarded to COORDIVELA EE; a recorded acknowledgement is not execution success"}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {description: Intervention is not active}
+        '429': {description: EE command rate limited; retry later}
+        '502': {description: EE unavailable or returned an invalid response}
+        '503': {description: AEGIVELA authorization unavailable}
   /v1/interventions/{id}/assess:
     post:
       operationId: assessIntervention
@@ -564,6 +605,43 @@ components:
         source_ref: {type: string}
         payload: {type: string}
         generate_attention: {type: boolean}
+    EEApprovalDecision:
+      type: object
+      required: [workspace_id, decision]
+      properties:
+        workspace_id: {type: string}
+        ee_request_id: {type: string}
+        decision: {type: string, enum: [approve, approve_with_constraints, reject]}
+        reason: {type: string}
+        authorization_ref: {type: string}
+        action: {type: string}
+        resource_kind: {type: string}
+        resource_ref: {type: string}
+        scope: {type: array, items: {type: string}}
+        audience: {type: string}
+        context_digest: {type: string}
+        expected_version: {type: integer, minimum: 0}
+    ApprovalExternalRef:
+      type: object
+      required: [workspace_id, system, external_id]
+      properties:
+        workspace_id: {type: string}
+        system: {type: string, pattern: '^[a-z0-9_-]{1,64}$'}
+        external_id: {type: string, minLength: 1}
+    EEInterventionCommand:
+      type: object
+      required: [workspace_id, work_item_id]
+      properties:
+        workspace_id: {type: string}
+        work_item_id: {type: string}
+        action: {type: string}
+        reason: {type: string}
+        authorization_ref: {type: string}
+        resource_kind: {type: string}
+        scope: {type: array, items: {type: string}}
+        audience: {type: string}
+        context_digest: {type: string}
+        expected_version: {type: integer, minimum: 0}
     ApprovalProjection:
       type: object
       required: [approval_id, workspace_id, request_ref, subject_ref, status, risk_level, source_system, source_ref, payload]
