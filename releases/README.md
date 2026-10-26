@@ -13,3 +13,10 @@ all applicable license notices.
 - GitHub release assets: <https://github.com/axisvela/symbivela-open/releases/tag/v1.1.1>
 - Note: `v1.1.1` moves core services into the reserved port range `1926–1935`
   (core API `:1926` with `--addr`/`SYMBIVELA_ADDR`, frontend dev `1927`).
+
+## v1.4.0
+
+- Manifest: [`v1.4.0/`](v1.4.0/)
+- Binaries: `symbivela`, `symbivela-migrate`, `symbivela-audit`, and `symbivela-bench` for linux/amd64, darwin/arm64, and windows/amd64.
+- Source: [SYMBIVELA core](https://github.com/axisvela/SYMBIVELA) at commit `35c9d19` (`v1.4.0`). Binaries are AGPL-3.0-or-later.
+- GitHub release assets: <https://github.com/axisvela/symbivela-open/releases/tag/v1.4.0>
