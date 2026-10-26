@@ -5,6 +5,11 @@ This repository follows Keep a Changelog and Semantic Versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- `contracts/MIGRATION-v2.md` documents the EE `0011_core_data_backfill`
+  ordering, table mapping, and restore path for core federation/spatial data.
+
 ## [v2.0.0] - 2026-10-26
 
 ### Removed
