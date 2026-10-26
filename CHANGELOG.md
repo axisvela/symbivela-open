@@ -5,6 +5,21 @@ This repository follows Keep a Changelog and Semantic Versioning.
 
 ## [Unreleased]
 
+## [v2.0.0] - 2026-10-26
+
+### Removed
+
+- Core OpenAPI paths for `/v1/auth/oidc/*`, `/v1/federation/*`, and
+  `/v1/spatial/*`.
+- SDK methods for the removed core endpoints.
+
+### Changed
+
+- OpenAPI `info.version` and `x-product-version` are `2.0.0`.
+- `contracts/openapi-v1.yaml` preserves the v1 contract.
+- `contracts/MIGRATION-v2.md` documents EE replacements and the retention
+  executor change.
+
 ## [v1.4.0] - 2026-10-26
 
 ### Changed

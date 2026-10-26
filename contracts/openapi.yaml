@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: SYMBIVELA Governance Kernel API
-  version: 1.0.0
-  x-product-version: 1.4.0
+  version: 2.0.0
+  x-product-version: 2.0.0
   description: |
     Public API for the AGPL SYMBIVELA Governance Kernel. Tenant and actor identity
     are supplied by trusted authentication middleware and represented by headers in
@@ -375,24 +375,6 @@ paths:
       responses:
         '200': {description: "Pending attention, approvals, handoffs, and active coordinated work across the actor's workspaces"}
         '400': {$ref: '#/components/responses/InvalidRequest'}
-  /v1/spatial/views:
-    post:
-      operationId: recordSpatialView
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {name: X-SYMBIVELA-Service, in: header, required: true, schema: {type: string, const: kinetovela}}]
-      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SpatialView'}}}}
-      responses: {'201': {description: Recorded}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {description: Service token missing or invalid}, '409': {description: Spatial projection source already seen}}
-    get:
-      operationId: listSpatialViews
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: query, required: false, schema: {type: string}}, {name: workspace_id, in: query, required: false, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
-      responses:
-        '200': {description: "Latest robot/twin spatial snapshots (by goal or workspace)"}
-        '400': {$ref: '#/components/responses/InvalidRequest'}
-        '403': {$ref: '#/components/responses/Forbidden'}
-  /v1/spatial/views/{entity_ref}:
-    get:
-      operationId: getSpatialView
-      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: entity_ref, in: path, required: true, schema: {type: string}}]
-      responses: {'200': {description: Latest spatial snapshot for the entity}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
   /v1/goals/{id}/amend:
     post:
       operationId: amendGoal

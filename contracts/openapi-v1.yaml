@@ -1,0 +1,711 @@
+openapi: 3.1.0
+info:
+  title: SYMBIVELA Governance Kernel API
+  version: 1.0.0
+  x-product-version: 1.4.0
+  description: |
+    Public API for the AGPL SYMBIVELA Governance Kernel. Tenant and actor identity
+    are supplied by trusted authentication middleware and represented by headers in
+    this initial contract. Clients cannot set tenant_id, a HumanDecision actor, or a
+    handoff from_owner_id in request bodies. Workspace-scoped commands require the
+    authenticated actor to hold the workspace role listed for the operation.
+servers:
+  - url: https://api.symbivela.axisvela.io
+paths:
+  /health:
+    get:
+      operationId: liveness
+      responses: {'200': {description: Process is alive}}
+  /ready:
+    get:
+      operationId: readiness
+      responses: {'200': {description: "Dependencies ready: {dependency: ok}"}, '503': {description: "Not ready: {dependency: down}"}}
+  /metrics:
+    get:
+      operationId: requestMetrics
+      responses: {'200': {description: Text request counters}}
+  /v1/workspaces:
+    post:
+      operationId: createWorkspace
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateWorkspace'}}}}
+      responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '409': {$ref: '#/components/responses/AlreadyExists'}}
+    get:
+      operationId: listWorkspaces
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}]
+      responses: {'200': {description: Memberships for the actor}, '400': {$ref: '#/components/responses/InvalidRequest'}}
+  /v1/workspaces/{id}/archive:
+    post:
+      operationId: archiveWorkspace
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Workspace soft-deleted with audit stamp}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/attention:
+    post:
+      operationId: createAttention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateAttention'}}}}
+      responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '409': {$ref: '#/components/responses/AlreadyExists'}}
+    get:
+      operationId: listAttention
+      parameters:
+        - {$ref: '#/components/parameters/Tenant'}
+        - {$ref: '#/components/parameters/Actor'}
+        - {name: workspace_id, in: query, required: true, schema: {type: string}}
+        - {name: status, in: query, required: false, schema: {type: string, enum: [open, claimed, resolved, escalated]}}
+        - {name: limit, in: query, required: false, schema: {type: integer, minimum: 1, maximum: 200, default: 50}}
+      responses:
+        '200': {description: Attention items for the workspace}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/attention/{id}/claim:
+    post:
+      operationId: claimAttention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Claimed}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+  /v1/attention/{id}/resolve:
+    post:
+      operationId: resolveAttention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Resolved}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+  /v1/attention/{id}/escalate:
+    post:
+      operationId: escalateAttention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Escalated}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+  /v1/decisions:
+    post:
+      operationId: recordHumanDecision
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RecordDecision'}}}}
+      responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '409': {$ref: '#/components/responses/AlreadyExists'}}
+    get:
+      operationId: listHumanDecisions
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: request_ref, in: query, required: false, schema: {type: string}}, {name: older_than_days, in: query, required: false, schema: {type: integer, minimum: 1}, description: "Retention hook: returns decisions older than N days"}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: "Decision records; with request_ref returns the latest matching decision; with older_than_days returns retention-due decisions"}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/decisions/{id}:
+    get:
+      operationId: getHumanDecision
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Immutable decision record}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/artifacts:
+    post:
+      operationId: registerArtifact
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RegisterArtifact'}}}}
+      responses: {'201': {description: Registered}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+    get:
+      operationId: listArtifacts
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: goal_id, in: query, required: false, schema: {type: string}}, {name: status, in: query, required: false, schema: {type: string, enum: [in_review, approved, rejected]}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Artifacts}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/artifacts/{id}:
+    get:
+      operationId: getArtifact
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Artifact}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/artifacts/{id}/review:
+    post:
+      operationId: reviewArtifact
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ArtifactReview'}}}}
+      responses: {'200': {description: Review recorded}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {description: Artifact not in review}}
+  /v1/exception-cases:
+    post:
+      operationId: openExceptionCase
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/OpenExceptionCase'}}}}
+      responses: {'201': {description: Opened}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+    get:
+      operationId: listExceptionCases
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: status, in: query, required: false, schema: {type: string, enum: [open, resolving, resolved, escalated]}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Exception cases}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/exception-cases/{id}:
+    get:
+      operationId: getExceptionCase
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Exception case}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/exception-cases/{id}/status:
+    post:
+      operationId: setExceptionCaseStatus
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ExceptionStatus'}}}}
+      responses: {'200': {description: Status updated}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+  /v1/threads:
+    post:
+      operationId: createThread
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateThread'}}}}
+      responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+    get:
+      operationId: listThreads
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Threads for the workspace}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/threads/{id}:
+    get:
+      operationId: getThread
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Thread with comments}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/threads/{id}/comments:
+    post:
+      operationId: postComment
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PostComment'}}}}
+      responses: {'201': {description: Comment posted}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/workspaces/{id}/metrics:
+    get:
+      operationId: workspaceMetrics
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: "Governance counters: goals, attention, approvals, exceptions, interventions, outcomes, artifacts, handoffs"}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/delegations:
+    post:
+      operationId: createDelegation
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateDelegation'}}}}
+      responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+    get:
+      operationId: listDelegations
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: delegatee_id, in: query, required: true, schema: {type: string}}]
+      responses: {'200': {description: Active delegations for the delegatee}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/delegations/{id}/revoke:
+    post:
+      operationId: revokeDelegation
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Revoked}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {description: Delegation not active}}
+  /v1/goals:
+    post:
+      operationId: createGoal
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateGoal'}}}}
+      responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '409': {$ref: '#/components/responses/AlreadyExists'}}
+    get:
+      operationId: listGoals
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Latest goal revisions}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/goals/{id}:
+    get:
+      operationId: getGoal
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Latest goal revision}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/events:
+    post:
+      operationId: ingestHarmovelaEvent
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {name: X-SYMBIVELA-Service, in: header, required: true, schema: {type: string, const: harmovela}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/HarmovelaEvent'}}}}
+      responses: {'201': {description: Ingested}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {description: Service token missing or invalid}, '409': {description: Event source already ingested}}
+  /v1/timeline:
+    get:
+      operationId: listTimeline
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Runtime timeline events}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/timeline/{goal_id}:
+    get:
+      operationId: goalTimeline
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}, {name: cursor, in: query, required: false, schema: {type: string}, description: "Opaque continuation token from next_cursor"}]
+      responses:
+        '200': {description: "Merged activity feed: runtime events, human decisions, interventions, plan revisions, outcome reviews; next_cursor when more pages exist"}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/approvals:
+    post:
+      operationId: recordApprovalProjection
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {name: X-SYMBIVELA-Service, in: header, required: true, schema: {type: string, const: aegivela}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ApprovalProjection'}}}}
+      responses: {'201': {description: Recorded}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {description: Service token missing or invalid}, '409': {description: Approval projection source already seen}}
+    get:
+      operationId: listApprovals
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: status, in: query, required: false, schema: {type: string, enum: [pending, approved, rejected, amended, deferred, expired]}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Approval projections}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/approvals/{id}:
+    get:
+      operationId: getApproval
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Approval projection}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/approvals/{id}/ee-decision:
+    post:
+      operationId: recordEEApprovalDecision
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EEApprovalDecision'}}}}
+      responses:
+        '200': {description: "Forwarded to COORDIVELA EE; a recorded acknowledgement is not execution success"}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {description: Approval external reference conflict}
+        '429': {description: EE command rate limited; retry later}
+        '502': {description: EE unavailable or returned an invalid response}
+        '503': {description: AEGIVELA authorization unavailable}
+  /v1/approvals/{id}/external-refs:
+    post:
+      operationId: linkApprovalExternalRef
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ApprovalExternalRef'}}}}
+      responses:
+        '201': {description: External reference linked}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {description: External reference conflict}
+        '503': {description: External reference store unavailable}
+  /v1/interventions:
+    post:
+      operationId: requestIntervention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/InterventionRequest'}}}}
+      responses: {'201': {description: Requested}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/interventions/{id}:
+    get:
+      operationId: getIntervention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Intervention record}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/interventions/{id}/ee-command:
+    post:
+      operationId: recordEEInterventionCommand
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EEInterventionCommand'}}}}
+      responses:
+        '200': {description: "Forwarded to COORDIVELA EE; a recorded acknowledgement is not execution success"}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {description: Intervention is not active}
+        '429': {description: EE command rate limited; retry later}
+        '502': {description: EE unavailable or returned an invalid response}
+        '503': {description: AEGIVELA authorization unavailable}
+  /v1/interventions/{id}/assess:
+    post:
+      operationId: assessIntervention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: "Safe-point assessment recorded: safe point, in-progress effect, estimated stop time"}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/InvalidTransition'}
+  /v1/interventions/{id}/break-glass:
+    post:
+      operationId: breakGlassIntervention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/BreakGlass'}}}}
+      responses: {'200': {description: "Authorized outside normal policy with evidence; review is mandatory"}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+  /v1/interventions/{id}/review:
+    post:
+      operationId: reviewBreakGlass
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/BreakGlassReview'}}}}
+      responses: {'200': {description: "Review recorded; disapproval reverts the intervention"}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+  /v1/interventions/{id}/authorize:
+    post:
+      operationId: authorizeIntervention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Authorized or denied by AEGIVELA}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}, '503': {description: Authorization authority unavailable}}
+  /v1/interventions/{id}/execute:
+    post:
+      operationId: executeIntervention
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Executed by runtime}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+  /v1/outcomes:
+    post:
+      operationId: createOutcomeReview
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateOutcome'}}}}
+      responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}}
+    get:
+      operationId: listOutcomes
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Outcome reviews}, '403': {$ref: '#/components/responses/Forbidden'}}
+  /v1/outcomes/{id}:
+    get:
+      operationId: getOutcome
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Outcome review}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/outcomes/{id}/acceptance:
+    post:
+      operationId: acceptOutcome
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/OutcomeAcceptance'}}}}
+      responses: {'200': {description: Accepted}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/evidence/{goal_id}:
+    get:
+      operationId: composeEvidence
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: "Responsibility chain: goal, plan, decisions, interventions, artifacts, outcome"}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/audit/{goal_id}:
+    get:
+      operationId: composeAuditBundle
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: "Bounded audit bundle: goal, plan, approvals, decisions, interventions, handoffs, artifacts, outcome, acceptances"}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/work-projections:
+    post:
+      operationId: recordWorkProjection
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {name: X-SYMBIVELA-Service, in: header, required: true, schema: {type: string, const: coordivela}}, {$ref: '#/components/parameters/ServiceToken'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkProjectionRequest'}}}}
+      responses: {'201': {description: Stored or advanced (including an equal-version new snapshot)}, '200': {description: Lower version ignored}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {description: Service token missing or invalid}, '409': {description: Projection source already seen or workspace conflict}}
+    get:
+      operationId: listWorkProjections
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: workspace_id, in: query, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses:
+        '200':
+          description: Latest work projections for the workspace, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/WorkProjection'}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/work-projections/{work_item_id}:
+    get:
+      operationId: getWorkProjection
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: work_item_id, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200':
+          description: Latest work projection
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WorkProjection'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/my-work:
+    get:
+      operationId: myWorkSummary
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}]
+      responses:
+        '200': {description: "Pending attention, approvals, handoffs, and active coordinated work across the actor's workspaces"}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+  /v1/spatial/views:
+    post:
+      operationId: recordSpatialView
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {name: X-SYMBIVELA-Service, in: header, required: true, schema: {type: string, const: kinetovela}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SpatialView'}}}}
+      responses: {'201': {description: Recorded}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {description: Service token missing or invalid}, '409': {description: Spatial projection source already seen}}
+    get:
+      operationId: listSpatialViews
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: query, required: false, schema: {type: string}}, {name: workspace_id, in: query, required: false, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses:
+        '200': {description: "Latest robot/twin spatial snapshots (by goal or workspace)"}
+        '400': {$ref: '#/components/responses/InvalidRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/spatial/views/{entity_ref}:
+    get:
+      operationId: getSpatialView
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: entity_ref, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Latest spatial snapshot for the entity}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/goals/{id}/amend:
+    post:
+      operationId: amendGoal
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AmendGoal'}}}}
+      responses: {'200': {description: New revision}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/plans:
+    post:
+      operationId: recordPlanProjection
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {name: X-SYMBIVELA-Service, in: header, required: true, schema: {type: string, const: orchadyn}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PlanProjection'}}}}
+      responses: {'201': {description: Recorded}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {description: Service token missing or invalid}, '409': {description: Projection source already seen}}
+  /v1/plans/{goal_id}:
+    get:
+      operationId: getPlanProjection
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Latest plan projection}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/plans/{goal_id}/revisions:
+    get:
+      operationId: listPlanRevisions
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}, {name: limit, in: query, required: false, schema: {type: integer, maximum: 200, default: 50}}]
+      responses: {'200': {description: Plan revisions ordered by receipt}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/plans/{goal_id}/diff:
+    get:
+      operationId: diffPlanRevisions
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}, {name: from, in: query, required: true, schema: {type: string}}, {name: to, in: query, required: true, schema: {type: string}}]
+      responses: {'200': {description: Top-level payload changes between two revisions}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/plans/{goal_id}/impact:
+    get:
+      operationId: planImpact
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: goal_id, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200': {description: "Impact summary: capability/delegation changes, irreversible actions, risk level"}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/handoffs:
+    post:
+      operationId: createHandoff
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateHandoff'}}}}
+      responses: {'201': {description: Created}, '400': {$ref: '#/components/responses/InvalidRequest'}, '403': {$ref: '#/components/responses/Forbidden'}, '409': {$ref: '#/components/responses/AlreadyExists'}}
+  /v1/handoffs/{id}:
+    get:
+      operationId: getHandoff
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Handoff record}, '403': {$ref: '#/components/responses/Forbidden'}, '404': {$ref: '#/components/responses/NotFound'}}
+  /v1/handoffs/{id}/accept:
+    post:
+      operationId: acceptHandoff
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Accepted}, '400': {$ref: '#/components/responses/InvalidRequest'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+  /v1/handoffs/{id}/reject:
+    post:
+      operationId: rejectHandoff
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Rejected}, '400': {$ref: '#/components/responses/InvalidRequest'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+  /v1/handoffs/{id}/escalate:
+    post:
+      operationId: escalateHandoff
+      parameters: [{$ref: '#/components/parameters/Tenant'}, {$ref: '#/components/parameters/Actor'}, {$ref: '#/components/parameters/IdempotencyKey'}, {name: id, in: path, required: true, schema: {type: string}}]
+      responses: {'200': {description: Escalated}, '400': {$ref: '#/components/responses/InvalidRequest'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/InvalidTransition'}}
+components:
+  parameters:
+    Tenant: {name: X-SYMBIVELA-Tenant, in: header, required: true, schema: {type: string, minLength: 1}}
+    Actor: {name: X-SYMBIVELA-Actor, in: header, required: true, schema: {type: string, minLength: 1}}
+    ServiceToken: {name: X-SYMBIVELA-Token, in: header, required: true, schema: {type: string, minLength: 1}}
+    IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1}, description: Unique per tenant for a mutating command. Replay with the same key is rejected.}
+  schemas:
+    CreateWorkspace:
+      type: object
+      required: [workspace_id, name, owner_id]
+      properties: {workspace_id: {type: string}, name: {type: string}, owner_id: {type: string}}
+    CreateAttention:
+      type: object
+      required: [attention_id, workspace_id, kind, subject_ref, source_system, source_ref, priority]
+      properties:
+        attention_id: {type: string}
+        workspace_id: {type: string}
+        kind: {type: string, enum: [approval, exception, handoff, information]}
+        subject_ref: {type: string}
+        source_system: {type: string}
+        source_ref: {type: string}
+        priority: {type: integer, minimum: 0}
+    RecordDecision:
+      type: object
+      required: [decision_id, workspace_id, request_ref, decision, context_digest]
+      properties:
+        decision_id: {type: string}
+        workspace_id: {type: string}
+        request_ref: {type: string}
+        decision: {type: string, enum: [approve, approve_with_constraints, reject, amend, defer, escalate]}
+        rationale: {type: string}
+        context_digest: {type: string}
+        constraints: {type: string, description: "JSON constraints text required for approve_with_constraints (e.g. narrowed amount, region, vendor)"}
+        causation_id: {type: string}
+    RegisterArtifact:
+      type: object
+      required: [workspace_id, artifact_id, goal_id, kind, name, ref]
+      properties:
+        workspace_id: {type: string}
+        artifact_id: {type: string}
+        goal_id: {type: string}
+        outcome_id: {type: string}
+        kind: {type: string, enum: [report, contract, code, record, dataset, other]}
+        name: {type: string}
+        ref: {type: string, description: Source reference or digest}
+    ArtifactReview:
+      type: object
+      required: [status]
+      properties:
+        status: {type: string, enum: [approved, rejected]}
+    CreateThread:
+      type: object
+      required: [workspace_id, thread_id, subject_type, subject_ref]
+      properties:
+        workspace_id: {type: string}
+        thread_id: {type: string}
+        subject_type: {type: string, enum: [goal, plan, exception, outcome, attention]}
+        subject_ref: {type: string}
+    PostComment:
+      type: object
+      required: [comment_id, body]
+      properties:
+        comment_id: {type: string}
+        body: {type: string}
+        mentions: {type: string, description: JSON array text of mentioned principals}
+    OpenExceptionCase:
+      type: object
+      required: [workspace_id, case_id, subject_ref, problem]
+      properties:
+        workspace_id: {type: string}
+        case_id: {type: string}
+        subject_ref: {type: string}
+        problem: {type: string}
+        evidence_refs: {type: string, description: JSON array text of evidence references}
+        candidate_actions: {type: string, description: JSON array text of candidate recovery actions}
+        deadline: {type: string, format: date-time}
+    ExceptionStatus:
+      type: object
+      required: [status]
+      properties:
+        status: {type: string, enum: [open, resolving, resolved, escalated]}
+    CreateDelegation:
+      type: object
+      required: [workspace_id, delegation_id, delegatee_id, expires_at]
+      properties:
+        workspace_id: {type: string}
+        delegation_id: {type: string}
+        delegatee_id: {type: string}
+        request_ref: {type: string, default: "*", description: "Request scope; '*' delegates all"}
+        expires_at: {type: string, format: date-time}
+    CreateGoal:
+      type: object
+      required: [goal_id, workspace_id, title, owner_id, status]
+      properties:
+        goal_id: {type: string}
+        workspace_id: {type: string}
+        title: {type: string}
+        objective: {type: string}
+        success_criteria: {type: string, description: JSON array text of measurable criteria}
+        constraints: {type: string, description: JSON array text of constraints}
+        owner_id: {type: string}
+        status: {type: string, enum: [draft, active, closed]}
+    CreateOutcome:
+      type: object
+      required: [workspace_id, outcome_id, goal_id]
+      properties:
+        workspace_id: {type: string}
+        outcome_id: {type: string}
+        goal_id: {type: string}
+        summary: {type: string}
+        artifact_refs: {type: string, description: JSON array text of artifact references}
+    OutcomeAcceptance:
+      type: object
+      required: [acceptance_id, decision, context_digest]
+      properties:
+        acceptance_id: {type: string}
+        decision: {type: string, enum: [accept, accept_with_conditions, request_rework, reject, escalate]}
+        rationale: {type: string}
+        context_digest: {type: string}
+    InterventionRequest:
+      type: object
+      required: [intervention_id, workspace_id, target_ref, verb]
+      properties:
+        intervention_id: {type: string}
+        workspace_id: {type: string}
+        target_ref: {type: string}
+        verb: {type: string, enum: [pause, resume, cancel, redirect, constrain, takeover, emergency-stop, recover]}
+    BreakGlass:
+      type: object
+      required: [evidence]
+      properties:
+        evidence: {type: string, description: Strong justification recorded for post-hoc review}
+    BreakGlassReview:
+      type: object
+      required: [approve]
+      properties:
+        approve: {type: boolean, description: "true accepts the break-glass; false reverts the intervention"}
+    HarmovelaEvent:
+      type: object
+      required: [event_id, workspace_id, type, subject_ref, source_system, source_ref]
+      properties:
+        event_id: {type: string}
+        workspace_id: {type: string}
+        occurred_at: {type: string, format: date-time}
+        type: {type: string, enum: [attention, state, exception, recovery, delegation]}
+        subject_ref: {type: string}
+        summary: {type: string}
+        source_system: {type: string, enum: [harmovela]}
+        source_ref: {type: string}
+        payload: {type: string}
+        generate_attention: {type: boolean}
+    EEApprovalDecision:
+      type: object
+      required: [workspace_id, decision]
+      properties:
+        workspace_id: {type: string}
+        ee_request_id: {type: string}
+        decision: {type: string, enum: [approve, approve_with_constraints, reject]}
+        reason: {type: string}
+        authorization_ref: {type: string}
+        action: {type: string}
+        resource_kind: {type: string}
+        resource_ref: {type: string}
+        scope: {type: array, items: {type: string}}
+        audience: {type: string}
+        context_digest: {type: string}
+        expected_version: {type: integer, minimum: 0}
+    ApprovalExternalRef:
+      type: object
+      required: [workspace_id, system, external_id]
+      properties:
+        workspace_id: {type: string}
+        system: {type: string, pattern: '^[a-z0-9_-]{1,64}$'}
+        external_id: {type: string, minLength: 1}
+    EEInterventionCommand:
+      type: object
+      required: [workspace_id, work_item_id]
+      properties:
+        workspace_id: {type: string}
+        work_item_id: {type: string}
+        action: {type: string}
+        reason: {type: string}
+        authorization_ref: {type: string}
+        resource_kind: {type: string}
+        scope: {type: array, items: {type: string}}
+        audience: {type: string}
+        context_digest: {type: string}
+        expected_version: {type: integer, minimum: 0}
+    ApprovalProjection:
+      type: object
+      required: [approval_id, workspace_id, request_ref, subject_ref, status, risk_level, source_system, source_ref, payload]
+      properties:
+        approval_id: {type: string}
+        workspace_id: {type: string}
+        request_ref: {type: string}
+        subject_ref: {type: string}
+        requested_scope: {type: string}
+        status: {type: string, enum: [pending, approved, rejected, amended, deferred, expired]}
+        risk_level: {type: string}
+        payload: {type: string, description: Approval packet JSON projection}
+        source_system: {type: string, enum: [aegivela]}
+        source_ref: {type: string}
+    WorkProjectionRequest:
+      $ref: './work-projection-request-v1.schema.json'
+    WorkProjection:
+      $ref: './work-projection-v1.schema.json'
+    PlanProjection:
+      type: object
+      required: [goal_id, plan_version, source_system, source_ref, payload]
+      properties:
+        goal_id: {type: string}
+        plan_version: {type: string}
+        source_system: {type: string, enum: [orchadyn]}
+        source_ref: {type: string}
+        payload: {type: string, description: ORCHADYN plan JSON projection}
+    SpatialView:
+      type: object
+      required: [workspace_id, entity_ref, entity_kind, status, location, source_system, source_ref]
+      properties:
+        workspace_id: {type: string}
+        entity_ref: {type: string, description: Canonical reference of the physical or twin entity}
+        entity_kind: {type: string, enum: [robot, twin, fleet, device]}
+        status: {type: string, description: "Operational state, e.g. idle, moving, charging, error"}
+        location: {type: string, description: JSON position/zone projection}
+        pose: {type: string, description: JSON orientation projection}
+        occupied_region: {type: string, description: JSON bounded region currently occupied}
+        goal_id: {type: string}
+        payload: {type: string}
+        source_system: {type: string, enum: [kinetovela]}
+        source_ref: {type: string}
+    AmendGoal:
+      type: object
+      required: [title, owner_id, status]
+      properties:
+        title: {type: string}
+        objective: {type: string}
+        success_criteria: {type: string}
+        constraints: {type: string}
+        owner_id: {type: string}
+        status: {type: string, enum: [active, closed]}
+    CreateHandoff:
+      type: object
+      required: [handoff_id, workspace_id, to_owner_id, scope_ref, deadline]
+      properties:
+        handoff_id: {type: string}
+        workspace_id: {type: string}
+        to_owner_id: {type: string}
+        scope_ref: {type: string}
+        deadline: {type: string, format: date-time}
+  responses:
+    InvalidRequest: {description: Invalid request or missing trusted context}
+    Forbidden: {description: Actor lacks the required workspace role or handoff acceptance target}
+    AlreadyExists: {description: Resource or source event already exists}
+    NotFound: {description: Resource not found in tenant}
+    InvalidTransition: {description: Requested state transition is not valid}
