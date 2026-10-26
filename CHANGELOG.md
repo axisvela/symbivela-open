@@ -5,6 +5,15 @@ This repository follows Keep a Changelog and Semantic Versioning.
 
 ## [Unreleased]
 
+## [v1.4.0] - 2026-10-26
+
+### Changed
+
+- Deprecation release for the core/EE boundary migration. Core OIDC/SAML,
+  federation, spatial, and retention endpoints remain available for the
+  compatibility window and are replaced by EE endpoints or facade integration.
+- `x-product-version` is `1.4.0`; the OpenAPI contract remains v1.
+
 ## [v1.3.0] - 2026-10-25
 
 ### Added

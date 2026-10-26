@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: SYMBIVELA Governance Kernel API
   version: 1.0.0
-  x-product-version: 1.3.0
+  x-product-version: 1.4.0
   description: |
     Public API for the AGPL SYMBIVELA Governance Kernel. Tenant and actor identity
     are supplied by trusted authentication middleware and represented by headers in
