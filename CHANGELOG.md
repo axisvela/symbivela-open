@@ -3,6 +3,14 @@
 All notable changes to SYMBIVELA-open are recorded here.
 This repository follows Keep a Changelog and Semantic Versioning.
 
+## [v2.2.0] - 2026-10-26
+
+### Changed
+
+- Core/open product version tracks core 2.2.0; the HTTP contract remains v2.
+- Core facade notification dispatch and preference APIs are documented for EE
+  integration; no public HTTP contract change.
+
 ## [v2.1.0] - 2026-10-26
 
 ### Changed
