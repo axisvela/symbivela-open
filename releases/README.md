@@ -20,3 +20,10 @@ all applicable license notices.
 - Binaries: `symbivela`, `symbivela-migrate`, `symbivela-audit`, and `symbivela-bench` for linux/amd64, darwin/arm64, and windows/amd64.
 - Source: [SYMBIVELA core](https://github.com/axisvela/SYMBIVELA) at commit `35c9d19` (`v1.4.0`). Binaries are AGPL-3.0-or-later.
 - GitHub release assets: <https://github.com/axisvela/symbivela-open/releases/tag/v1.4.0>
+
+## v2.0.0
+
+- Manifest: [`v2.0.0/`](v2.0.0/)
+- Binaries: `symbivela`, `symbivela-migrate`, `symbivela-audit`, and `symbivela-bench` for linux/amd64, darwin/arm64, and windows/amd64.
+- Source: [SYMBIVELA core](https://github.com/axisvela/SYMBIVELA) at commit `d093b1a` (`v2.0.0`). Binaries are AGPL-3.0-or-later.
+- GitHub release assets: <https://github.com/axisvela/symbivela-open/releases/tag/v2.0.0>
